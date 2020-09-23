@@ -33,16 +33,20 @@
   colorlinks=true,
   allcolors=[rgb]{0.129,0.341,0.769}
 }
+
+\setlength{\parindent}{0em}
 \begin{document}
 \begin{titlepage}
   \newcommand{\HRule}{\rule{\linewidth{0.5mm}}}
 
     \begin{center}
-      %\HRule\\
+      %\HRule
       %\\[0.5 cm]
+      \rule{\linewidth}{0.5mm} \\
       \vspace{0.5 cm}
       \huge{\bfseries Assignment 1: Studying 2016 US Elections Through
         Analysing Twitter Data}
+      \rule{\linewidth}{0.5mm}
       \\[1.2 cm]
       \begin{minipage}{0.45\textwidth}
         \begin{flushleft}
@@ -56,18 +60,18 @@
       \begin{minipage}{0.4\textwidth}
         \begin{flushright}
           \large
-          Judit Gyorfi\\
-          {\small email address}\\
-          {\small UVA-net ID}
+          Judit Győrfi\\
+          {\small judit.gyorfi@student.uva.nl}\\
+          {\small 13209647}
         \end{flushright}
       \end{minipage}
       \\[1cm]
       \begin{minipage}{0.45\textwidth}
         \begin{flushleft}
         \large
-        Orlando\\
-        {\small email address}\\
-        {\small UVA-net ID}
+        Orlando Scarpa\\
+        {\small \email{orlando.scarpa@student.uva.nl}}\\
+        {\small 13266918}
         \end{flushleft}
       \end{minipage}
       ~
@@ -83,9 +87,9 @@
       \begin{minipage}{0.5\textwidth}
         \begin{center}
           \large
-          Miki\\
-          {\small email address}\\
-          {\small UVA-net ID}
+          Miklos Kosarszky\\
+          {\small\email{miklos.kosarszky@student.uva.nl}}\\
+          {\small 13242857}
         \end{center}
       \end{minipage}
       \vfill
@@ -100,6 +104,25 @@
   \setcounter{page}{1}
   \setcounter{section}{0}
   \section{Data Preparation}
+  After extracting all the json objects and flattening all the fields
+  the DataFrame had 35 columns, Of these, 10 were selected as valuable
+  insights into the data.\\
+  
+  Using the columns relating to the language and country code, the
+  DataFrame was reduced to only tweets in english and posted from the
+  United States. After this, the column containing the full name of
+  the location of origin of the tweet was used to extract the two
+  letter code of the state of origin, keeping in mind to exclude
+  territories whose inhabitants don’t vote for the president like
+  Puerto Rico and Guam. Of the 517,724 tweets in english from the
+  United States, less than 5000 tweets were excluded in this
+  manner. To clean the text and prepare it to be tokenized, all text
+  in the tweets was stripped of punctuation, special characters, new
+  lines, hyperlinks and trailing spaces. Furthermore, stop words were
+  removed and select hashtags and mentions were counted to give a
+  rudimentary estimate of the candidate being talked about in each
+  tweet.
+  
   \section{Data Splitting}
   \section{Sentiment Analysis}
   \section{Topic Modelling}
@@ -107,3 +130,7 @@
   \section{Limitations}
   \section{Context}
 \end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
