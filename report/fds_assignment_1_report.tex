@@ -125,6 +125,25 @@
   
   \section{Data Splitting}
   \section{Sentiment Analysis}
+  \subsection{Multinomial Naïve Bayes}
+  Our first approach to predict the sentiment of the tweets, was to
+  use the Multinomial Naive Bayes. It is generally used where there
+  are discrete features ( e.g. word counts in a text classification
+  problem). The multinomial distribution describes the probability of
+  observing counts among several categories, this was the reason why
+  we chose this first. To feed the machine learning algorithm, we
+  vectorized our string data to numerical values, for this  we used
+  CountVectorization and Tf-IDF transformation. Moreover we used
+  pipeline technique which is a built-in function of scikit-learn to
+  pre-define a workflow of algorithm. After selecting our model, we
+  had to validate it with the existing training data set, so we used
+  the conventional \texttt{train\_test\_split} technique to split the
+  training data set with the test size of $20\%$ and let our pipeline
+  model be validated on the split data sets. The model reached an
+  accuracy of $75,8\%$, which is relatively low, so we decided to look
+  for another, hopefully more accurate approach. 
+  
+  \subsection{Neural Networks}
   \section{Topic Modelling}
 
   In addition to sentiment analysis, an attempt was also made to model
