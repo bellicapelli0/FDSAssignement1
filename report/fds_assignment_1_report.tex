@@ -249,51 +249,54 @@
   
   \section{Topic Modelling}
 
-  In addition to sentiment analysis, an attempt was also made to model
-  topics for the tweets. The hope here was to separate the two
+  \indent In addition to sentiment analysis, an attempt was also made
+  to model topics for the tweets. The hope here was to separate the two
   political candidates into two topics. The main approach explored is
   a Latent Dirichlect Allocation model (LDA) trained on the same data
   as was used before. LDA is an unsupervised soft clustering approach,
   so it allows for some flexibility between the topics. To optimise the
   model, the $\alpha$ and $\eta$ hyperparameters are turned according
   to the gensim Python package's coherence measure. The coherence
-  measure "rate[s] topics according to their understandability". It is
+  measure "rate[s] topics according to their understandability". It is 
   bounded between 0 and 1, with 1 being the most optimal score and 0
-  being the least optimal score. The table below illustrates
-  descriptive statistics of the coherence value for the lda model for
-  two, three, and four topics specified. 
-  
-  \begin{table}[H]
-    \centering
-    \begin{tabular}{||p{2cm} p{3cm} p{3cm} p{2.5cm} ||}
-      \hline
-      Topics & Mean Coherence & Median Coherence &  Max Coherence \\ \hline
-      2 & 0.281548 & 0.261847 & 0.498121 \\
-      3 & 0.402202 & 0.411127 & 0.496927 \\
-      4 & 0.377042 & 0.386631 & 0.473121 \\
-      \hline
-    \end{tabular}
-    \caption{\label{tab:lda_hyperparameter_table} Coherence Values Against Number of Topics}
-  \end{table}
+  being the least optimal score.   The highest coherence value is
+  $0.498121$ and the corresponding hyperparameters are values are
+  $\alpha = 0.01$ and $\eta = "symmetric"$. A coherence of $\approx
+  0.500$ is still not ideal, and it possibly suggests that the topics
+  might not be coherent enough. After tuning the lda model, though,
+  closer  inspection at the results reveals that indeed the topics are
+  not very coherent. Below is a list of filtered tweets in the first topic: 
 
-  The coherence values for modelling three and four topics are
-  included to provide context to interpret the model for two
-  topics. The mean coherence for two topics is substantially lower at
-  $0.281548$, but it is quickly explained by the slightly lower median, so
-  the distribution of coherence values across the different
-  combinations of hyperparameters is skewed towards $0$. However, the
-  model for two topics has the highest coherence value. In fact, from
-  two to four, the maximum coherence value progressively lowers,
-  suggesting that increasing the number of topics only further reduces
-  the topic coherence. As such, we choose the hyperparameters for the
-  model with two topics with the max coherence of $0.498121$. These
-  values are $\alpha = 0.01$ and $\eta = "symmetric"$. A coherence of
-  $\approx 0.500$ is still not ideal, and it possibly suggests that
-  the topics might not be coherent enough.
+  %The table below illustrates
+  %descriptive statistics of the coherence value for the lda model for
+  %two, three, and four topics specified. 
   
-  After tuning the lda model, closer inspection at the results reveals
-  that indeed the topics are not very coherent. Below is a list of
-  filtered tweets in the first topic:
+  %\begin{table}[H]
+  %  \centering
+  %  \begin{tabular}{||p{2cm} p{3cm} p{3cm} p{2.5cm} ||}
+  %    \hline
+  %    Topics & Mean Coherence & Median Coherence &  Max Coherence \\ \hline
+  %    2 & 0.281548 & 0.261847 & 0.498121 \\
+  %    3 & 0.402202 & 0.411127 & 0.496927 \\
+  %    4 & 0.377042 & 0.386631 & 0.473121 \\
+  %    \hline
+  %  \end{tabular}
+  %  \caption{\label{tab:lda_hyperparameter_table} Coherence Values Against Number of Topics}
+  %\end{table}
+
+  %The coherence values for modelling three and four topics are
+  %included to provide context to interpret the model for two
+  %topics. The mean coherence for two topics is substantially lower at
+  %$0.281548$, but it is quickly explained by the slightly lower median, so
+  %the distribution of coherence values across the different
+  %combinations of hyperparameters is skewed towards $0$. However, the
+  %model for two topics has the highest coherence value. In fact, from
+  %two to four, the maximum coherence value progressively lowers,
+  %suggesting that increasing the number of topics only further reduces
+  %the topic coherence. As such, we choose the hyperparameters for the
+  %model with two topics with the max coherence of $0.498121$.
+
+
 
   \begin{itemize}
     \item Words in Tweet \#114226: such shit realdonaldtrump would have
@@ -310,8 +313,8 @@
 
   While the first three tweets in the list can be interpreted as
   "critical of Trump", the same interpretation cannot be applied to
-  the other two tweets. This selection of tweets is representative of
-  a mixture of tweets in this topic. A similar problem can be found in
+  the other two tweets. Too many of the tweets and this topic are
+  similarly arbitrary. A similar problem can be found in
   the tweets in the second topic. Because of the poor performance of
   this lda model even after tuning, we fell back on using the hashtags
   found in the data preparation for the other analyses in this paper.    
@@ -406,7 +409,7 @@
 
   \begin{table}[H]
     \centering
-    \begin{tabular}{||p{2cm} p{3cm} p{3cm} ||}
+    \begin{tabular}{||p{2cm} p{3cm} p{3cm}||}
       \hline
       state & polarity & name \\ \hline
       ID & -0.0236 & Idaho \\
