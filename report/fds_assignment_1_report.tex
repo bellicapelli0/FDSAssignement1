@@ -15,7 +15,9 @@
 \usepackage[useregional]{datetime2}
 %\usepackage{interval}
 \usepackage[backend=biber, style=apa]{biblatex}
-\addbibresource{cap_bibliography.bib}
+%\usepackage[backend=biber, bibstyle=biblatex-langsci-unified, style=apa]{biblatex}
+%\usepackage{biblatex}
+\addbibresource{twitter_bibliography.bib}
 
 \usepackage[margin=1in, left=1in, includefoot]{geometry}
 
@@ -94,87 +96,126 @@
           {\small 13242857}
         \end{center}
       \end{minipage}
-      \vfill
-      \vfill
-      \vfill
+      % \vfill
+      \vspace{100pt}
+      %\vfill
+      %\vfill
     \end{center}
+
+    \setcounter{section}{0}
+    \setcounter{figure}{0}
+    \section*{Abstract}
+    \indent As social media becomes a larger part of our day to day lives, it
+    also becomes an important tool for discussing and expressing
+    political opinions. Using various Machine Learning and Data Science
+    methods, we strove to determine whether or not the sentiment
+    expressed on social media can be used as a reasonable estimation of
+    the results of an election. 
   \end{titlepage}
 
   %\tableofcontents
   %\thispagestyle{empty}
   %\pagebreak
   \setcounter{page}{1}
-  \setcounter{section}{0}
-  \setcounter{figure}{0}
-  \section{Introduction}
-  In this project, our group analysed the twitter dataset about the
-  2016 US Election. To prepare a reasonable conclusion and correlation
-  between the twitter posts and the final results in each state, we
-  decided to use topic and sentiment analysis. The importance of
-  sentiment analysis is to recognize and monitor the feelings and
-  emotions of the society about a topic discussed in social
-  networks. Without the presence of the explicit data these approaches
-  are not performable, therefore one of the most important part of our
-  assignment was data cleaning. The result of our analysis
   
-  \section{Data Preparation}
-  After extracting all the json objects and flattening all the fields
-  the DataFrame had 35 columns, Of these, 10 were selected as valuable
-  insights into the data.%\\
+  \section{Introduction}\\
+  \indent In this project, our group analysed a Twitter dataset about the 2016
+  United States presidential election. To prepare a reasonable
+  conclusion and correlation between the Twitter posts and the final
+  results in each state, we decided to use sentiment analysis. The
+  importance of sentiment analysis is to recognize and monitor the
+  feelings and emotions of society about a topic discussed in social
+  networks. For this objective, we decided to use a set of different
+  sentiment analysis approaches and tried to correlate the results we
+  found with the effective results of the 2016 US elections. 
   
-  Using the columns relating to the language and country code, the
-  DataFrame was reduced to only tweets in english and posted from the
-  United States. After this, the column containing the full name of
-  the location of origin of the tweet was used to extract the two
-  letter code of the state of origin, keeping in mind to exclude
-  territories whose inhabitants don’t vote for the president like
-  Puerto Rico and Guam. Of the 517,724 tweets in english from the
-  United States, less than 5000 tweets were excluded in this
-  manner. To clean the text and prepare it to be tokenized, all text
-  in the tweets was stripped of punctuation, special characters, new
-  lines, hyperlinks and trailing spaces. Furthermore, stop words were
-  removed and select hashtags and mentions were counted to give a
-  rudimentary estimate of the candidate being talked about in each
-  tweet.
+  \section{Data Cleaning}
+  \indent One of the most important steps in analysing any data and especially
+  text data is data cleaning, so a large amount of our effort was
+  spent in this section. After extracting all the json objects and
+  flattening all the fields the DataFrame had 35 columns, Of these, 10
+  were selected as valuable insights into the data. Using the columns
+  relating to the language and country code, the DataFrame was reduced
+  to only tweets in English and posted from the United States. After
+  this, the column containing the full name of the location of origin
+  of the tweet was used to extract the two-letter code of the state of
+  origin, keeping in mind to exclude territories whose inhabitants
+  don’t vote for the president, like Puerto Rico and Guam. Of the
+  517,724 tweets in English from the United States, less than 5000
+  tweets were excluded in this manner. To clean the text and prepare
+  it to be tokenized, all text in the tweets was stripped of
+  punctuation, special characters, new lines, hyperlinks and trailing
+  spaces. Furthermore, stop words were removed and select hashtags and
+  mentions were counted to give a basic estimate of the candidate
+  being talked about in each tweet. 
+
+  \section{Polarity}
+  \indent The already cleaned data provides us with many possibilities in
+  terms of data analysis. One of the main focus of the analysis is on
+  sentiment analysis of the Twitter texts. Python has a wide variety
+  of Natural Language Processing (NLP) tools that are helpful when
+  looking for the sentiment value of a particular text, and in our
+  case, tweets. Some of the packages, such as NLTK and TextBlob can
+  deal with strings mathematically. To find out the polarity of our
+  tweets, we have used the TextBlob tool which classifies the text
+  into negative, neutral and positive tweets between the values -1 and
+  1, where negative numbers tend to refer to tweets with negative
+  wording and positives refer to tweets with positive words. TextBlob
+  also creates a second output called subjectivity, with values
+  between 0 and 1  where 0 is an objective tweet and 1 is a subjective
+  one. However, in this assignment, we are only focusing on polarity
+  as this gives us a better overview of the tweet.  
   
-  %\section{Data Splitting}
   \section{Sentiment Analysis}
   \subsection{Multinomial Naïve Bayes}
-  Our first approach to predict the sentiment of the tweets, was to
-  use the Multinomial Naive Bayes. It is generally used where there
-  are discrete features ( e.g. word counts in a text classification
+  \indent Our first approach to predict the sentiment of the tweets was to use
+  the Multinomial Naive Bayes. It is generally used where there are
+  discrete features ( e.g. - word counts in a text classification
   problem). The multinomial distribution describes the probability of
   observing counts among several categories, this was the reason why
   we chose this first. To feed the machine learning algorithm, we
   vectorized our string data to numerical values, for this  we used
-  CountVectorization and Tf-IDF transformation. Moreover we used
+  CountVectorization and Tf-IDF transformation. Moreover, we used
   pipeline technique which is a built-in function of scikit-learn to
-  pre-define a workflow of algorithm. After selecting our model, we
-  had to validate it with the existing training data set, so we used
-  the conventional \texttt{train\_test\_split} technique to split the
+  pre-define a workflow of the algorithm. After selecting our model,
+  we had to validate it with the existing training data set, so we
+  used the conventional \texttt{train\_test\_split} technique to split the
   training data set with the test size of $20\%$ and let our pipeline
   model be validated on the split data sets. The model reached an
   accuracy of $75,8\%$, which is relatively low, so we decided to look
-  for another, hopefully more accurate approach. 
+  for another, hopefully more accurate, approach.
   
   \subsection{Neural Networks}
-  \begin{wrapfigure}{r}{0.30\linewidth}
-    \includegraphics[trim=0 0 0 100, width=\linewidth]{{Dense.png}}
-    \centering
-    \captionsetup{justification=centering}
-    \caption{Diagram of densely layered Neural Network}
-    \vspace{-110pt}
-    \label{fig:dense}
-  \end{wrapfigure}
+  %\begin{wrapfigure}{r}{0.30\linewidth}
+  %  \includegraphics[trim=0 0 0 100, width=\linewidth]{{Dense.png}}
+  %  \centering
+  %  \captionsetup{justification=centering}
+  %  \caption{Diagram of densely layered Neural Network}
+  %  \vspace{-110pt}
+  %  \label{fig:dense}
+  %\end{wrapfigure}
+
   
-  To attempt to supplement the relatively low accuracy of the
+
+  \indent To attempt to supplement the relatively low accuracy of the
   Multinomial Naïve Bayes, three different Neural Network approaches
   were tested. All Neural Networks were developed using Tensorflow 2.0
   + Keras, and were trained, validated and tested using the
-  Sentiment140 dataset containing $1.6$ million labeled tweets.%\\
+  Sentiment140 dataset containing $1.6$ million labelled tweets. 
+
+  \begin{wrapfigure}{r}{0.30\linewidth}
+    \vspace{-20pt}
+    \begin{center}
+      \includegraphics[trim=10 0 0 0, width=\linewidth]{{Dense.png}}
+    \end{center}
+    \captionsetup{justification=centering}
+    \caption{Diagram of Densely Layered Neural Network} 
+    \label{fig:dense}
+    \vspace{-10pt}
+  \end{wrapfigure}
   
   The first approach was a simple sequence of three Dense layers,
-  interleaved with dropout layers with a rate of 0.2 to avoid
+  interleaved with dropout layers with a rate of $0.2$ to avoid
   overfitting. The input tweets were first tokenized and converted
   into a matrix representing the count of how many times a given word
   appeared in a tweet. The model was trained on $80\%$ of the data,
@@ -185,7 +226,7 @@
   test dataset, reaching a final accuracy of $84.7\%$. While this was
   considerably higher than the Naïve Bayes approach, we decided to try
   some other more sophisticated approaches to attempt to further
-  optimize the results.%\\
+  optimize the results. 
 
   %\begin{wrapfigure}{r}{0.25\linewidth}
   %  \vspace{-20pt}
@@ -204,14 +245,13 @@
   sequences to maintain word order. The same $80-20$ split was used to
   separate the input data, with a $0.25$ validation split of the train
   data. Before the 1D Convolutional layer, an embedding layer was
-  added to map the tokenizer vocabulary indices to embedding
-  indices. The Convolutional layer was followed by two Dense
-  layers. Dropout layers were appropriately inserted to avoid
-  overfitting. Once again, the net was trained on the same dataset as
-  the previous approach with $10$ epochs and a batch size of
-  $32$. Once tested on the test dataset, the model reached an accuracy
-  of $79.4\%$ that, while higher than the Naïve Bayes approach, was
-  still lower than the simple dense model.%\\
+  added to increase the density of the sparse vector inputs. The
+  Convolutional layer was followed by two Dense layers. Dropout layers
+  were appropriately inserted to avoid overfitting. Once again, the
+  net was trained on the same dataset as the previous approach with 10
+  epochs and a batch size of $32$. Once tested, the model reached an
+  accuracy of $79.4\%$ that, while higher than the Naïve Bayes
+  approach, was still lower than the simple dense model. 
 
   %\begin{wrapfigure}[11]{r}{0.30\linewidth}
   %  \includegraphics[trim=0 0 0 40, width=\linewidth]{{LSTM.png}}
@@ -221,20 +261,17 @@
   %  \caption{Diagram of LSMT Network} 
   %  \label{fig:lsmt}
   %\end{wrapfigure}
-  
+
   The final approach was to use a Recurrent Neural Network to make use
   of the memory state of these networks and better identify patterns
   in the tweets. Long Short Term Memory (LSMT) was chosen as it’s more
   sophisticated than basic RNNs and avoids the vanishing gradient
   problem caused by these. The Train-Validation-Test split was
   identical to the previous approaches, and tokenization was achieved
-  using the same method as the Convolutional Approach.%\\
-
-  The LSTM layer was preceded by an embedding and dropout layer, and
-  followed by a Dense layer (with an output dimension of $[?,2]$ since
-  in this approach the sentiment target data was represented with
-  dummies). The model was once again fitted on a batch size of $32$
-  for $10$ epochs, achieving a final accuracy of $82.1\%$.%\\
+  using the same method as the Convolutional Approach. The LSTM layer
+  was preceded by an embedding and dropout layer, and followed by a
+  Dense layer. The model was once again fitted on a batch size of $32$
+  for $10$ epochs, achieving a final accuracy of $82.1\%$.  
 
   All three approaches reached a higher accuracy metric than the
   Multinomial Naïve Bayes approach, but to our surprise, the simplest
@@ -245,7 +282,7 @@
   accurate than the other two in predicting the sentiment of the
   tweets, and the Simple model to be very slightly more accurate than
   the recurrent one. For this reason, we decided to finally use the
-  simple model’s predictions of sentiment for the twitter data.%\\
+  simple model’s predictions of sentiment for the twitter data. 
   
   \section{Topic Modelling}
 
@@ -256,8 +293,8 @@
   as was used before. LDA is an unsupervised soft clustering approach,
   so it allows for some flexibility between the topics. To optimise the
   model, the $\alpha$ and $\eta$ hyperparameters are turned according
-  to the gensim Python package's coherence measure. The coherence
-  measure "rate[s] topics according to their understandability". It is 
+  to the gensim python package's coherence measure. The coherence
+  measure "rate[s] topics according to their understandability"\autocite[399]{roder_2015}. It is 
   bounded between 0 and 1, with 1 being the most optimal score and 0
   being the least optimal score.   The highest coherence value is
   $0.498121$ and the corresponding hyperparameters are values are
@@ -299,7 +336,7 @@
 
 
   \begin{itemize}
-    \item Words in Tweet #30524: you picked him now you are staring
+    \item Words in Tweet \#30524: you picked him now you are staring
       straight into the face of the base of your party not so pretty is it uglygop nevertrump
     \item Words in Tweet \#33233:  realdonaldtrump you obviously have
       no idea how things work dummy
@@ -340,47 +377,35 @@
   %we fell back on using the hashtags found in the data preparation for
   %the other analyses in this paper.   
       
-  \section{Polarity}
-  The already cleaned data provides us with many possibilities in
-  terms of data analysis. One of the main focus of the analysis is on
-  sentiment analysis of the Twitter texts. Python has a wide variety
-  of Natural Language Processing (NLP) tools that are helpful when
-  looking for the sentiment value of a particular text, and in our
-  case, tweets. Some of the packages, such as NLTK and TextBlob can
-  deal with strings mathematically. To find out the polarity of our
-  tweets, we have used the TextBlob tool which classifies the text
-  into negative, neutral and positive tweets between the values $-1$ and
-  $1$, where negative numbers tend to refer to tweets with negative
-  wording and positives refer to tweets with positive words. TextBlob
-  also creates a second output called subjectivity, with values
-  between $0$ and $1$  where $0$ is an objective tweet and $1$ is a subjective
-  one. In this assignment, however, we are only focusing on polarity
-  as this can be more correlated to actual vote results.%\\
-
+  \section{Results}
+  \subsection{Polarity Results}
   The first step in our analysis is to create a new column called
   “polarity” in the already cleaned data with the TextBlob package
   based on the tweet texts. The new column will contain the values of
-  the polarities of the particular tweets. Next, we are grouping the
-  data by states and taking the average value of the polarities per
-  state. As a result ,we get the sorted polarity values for the 50
+  the polarities of particular tweets. Next, we are grouping the data
+  by states and taking the average value of the polarities per
+  state. As a result, we get the sorted polarity values for the 50
   states. We can observe that the average polarity values of the
-  tweets in general are between $-0.2$ and $0.2$.
+  tweets, in general, are between $-0.1$ and $0.2$. We can observe that
+  tweets in general (not considering that Hillary or Trump is included
+  in the tweet text) are the most positive in Kentucky, while
+  Mississippi has the lowest average polarity score.
 
-  In order to get a better insight on how tweets can be related to
-  votes results, we have split up our dataset to tweets which are
-  mainly about Trump and to tweets about Hillary. After that, we
-  follow the same procedure as before, and group the average polarity
-  scores of the two candidates per state. Next, we load an external
-  dataset from the $2016$ U.S elections
-  (“usa-2016-presidential-election-by-county.csv”) to compare the
+  To get a better insight on how tweets can be related to votes
+  results, we have split up our dataset to tweets which are mainly
+  about Trump and to tweets about Hillary. After that, we follow the
+  same procedure as before and group the average polarity scores of
+  the two candidates per state. Next, we load an external dataset from
+  the 2016 U.S elections
+  (“usa-2016-presidential-election-by-county.csv”) to compare the  
   results with the polarity of the tweets. The results state that
-  Trump got the most positive comments from states like Montana,
+  Trump got the most positive comments from states such as Montana,
   Wisconsin and Kentucky. These are states where Trump also got more
   votes than Hillary Clinton.  
   
   \begin{table}[H]
     \centering
-    \begin{tabular}{||p{2cm} p{3cm} p{3cm} ||}
+    \begin{tabular}{||p{2cm} p{3cm} p{3.5cm} ||}
       \hline
       state & polarity & name \\ \hline
       NE & 0.0819 & Nebraska \\
@@ -389,7 +414,7 @@
       KT & 0.1120 & Kentucky \\
       \hline
     \end{tabular}
-    \caption{\label{tab:} }
+    %\caption{\label{tab:} }
   \end{table}
 
   As for Hillary, we can conclude that she received negative tweets in
@@ -397,19 +422,19 @@
   Wyoming. Correspondingly, she received positive tweets from states
   such as Washington D.C and New Hampshire which indeed voted for
   Hillary. We have calculated a correlation score between polarity and
-  the winner of a state ($1$ : Trump, $0$: Hillary). The resulting
-  correlation for tweets containing Trump and winner:Trump  is
-  $0.257$. The result states that the more positive the tweet about
-  Trump is, the more likely that state has voted for Trump. Vice
-  verse, if the tweets are more positive about Hillary, it is less
-  likely that people in that state voted for Trump. (Correlation:
-  $-0.189$). However, these correlations are not high enough (smaller
-  than $0.3$) to say that the polarity of a tweet has a decisive impact
-  on the vote results.
-
+  the winner of a state ( $1$ : Winner is Trump, $0$:Winner is
+  Hillary). The resulting correlation for tweets about Trump and
+  “winner” : Trump is $0.257$. The result states that the more positive
+  the tweet about Trump is, the more likely that state has voted for
+  Trump. Vice versa, if the tweets are more positive about Hillary, it
+  is less likely that people in that state voted for
+  Trump. (Correlation: $-0.189$). However, these correlations are not
+  high enough (smaller than $0.3$) to say that the polarity of a tweet
+  has a decisive impact on the vote results.
+  
   \begin{table}[H]
     \centering
-    \begin{tabular}{||p{2cm} p{3cm} p{3cm}||}
+    \begin{tabular}{||p{2cm} p{3cm} p{3.5cm}||}
       \hline
       state & polarity & name \\ \hline
       ID & -0.0236 & Idaho \\
@@ -420,18 +445,188 @@
       NH & 0.0822 & New Hampshire\\
       \hline
     \end{tabular}
-    \caption{\label{tab:} }
+    %\caption{\label{tab:} }
   \end{table}
 
-  To get a better overview, we have included a few maps which reflect
-  whether the tweets in a state were positive or negative about
-  Hillary or Trump. Furthermore, we have also added a map about the
-  votes results in 2016 based on the external dataset. For the
-  visualisation, we have used plotly and matplotlib.  
+
+  \begin{wrapfigure}{r}{0.40\linewidth}
+    \vspace{-20pt}
+    \begin{center}
+      \includegraphics[width=\linewidth]{{trump_polarity_02.png}}
+    \end{center}
+    \captionsetup{justification=centering}
+    \caption{Polarity in Each State} 
+    \label{fig:trump_polarity_02}
+    \vspace{-40pt}
+  \end{wrapfigure}
   
-  \section{Results Understanding}
-  \section{Limitations}
-  \section{Context}
+  To get a better overview, \Cref{fig:trump_polarity_02} reflects
+  whether the tweets in a state were positive or negative about
+  Hillary or Trump. %Furthermore, we have also added a map about the
+  %votes results in 2016 based on the external dataset. For the
+  %visualisation, we have used plotly and matplotlib.
+  
+  \subsection{Sentiment Results}
+  After analysing the Polarity data, a similar examination was
+  performed on the sentiment prediction of the neural network
+  model. When listing the average sentiment for each candidate in each
+  state in descending order, these were the results: 
+
+  \begin{table}[H]
+    \centering
+    \begin{tabular}{||p{3cm} p{3.5cm}||}
+      \hline
+      top trump States & top hillary states \\ \hline
+      Montana & Hawaii \\
+      Louisiana & New Hampshire \\
+      Wisconsin & District of Columbia \\
+      Alaska & Oregon \\
+      Arkansas & Kansas \\
+      \hline
+    \end{tabular}
+    %\caption{\label{tab:} }
+  \end{table}
+
+  Trump’s top $5$ states were all states where he did in fact win,
+  albeit in Wisconsin by a very slim margin, while for Hillary Kansas
+  appears in $5$th place despite her losing handily in that state, and
+  another swing state in the form of New Hampshire appears.
+
+  Further down in the list the results appeared to be more incorrect,
+  and for this reason we decided to compare the difference between the
+  average sentiment in each state for each candidate. This resulted in
+  us having a single metric that represented whether the average
+  sentiment in the Twitter data for each state was more positive
+  towards Trump or Hillary. An initial analysis of this metric showed
+  evidence of some problems in correlating the sentiment data we
+  predicted with the actual results. The top five states for the
+  candidates were: 
+  
+  \begin{table}[H]
+    \centering
+    \begin{tabular}{||p{3cm} p{3.5cm}||}
+      \hline
+      top trump States & top hillary states \\ \hline
+      Louisiana & Kentucky \\
+      Montana & Mississippi \\
+      Arkansas & Oregon \\
+      Delaware & District of Columbia \\
+      North Dakota & New Hampshire \\
+      \hline
+    \end{tabular}
+    %\caption{\label{tab:} }
+  \end{table}
+
+  According to this metric, The states where Hillary found more
+  support than Trump included Republican strongholds Kentucky and
+  Mississippi, while Trump’s list includes Delaware, where he lost. To
+  further confirm that this metric, and by association the calculated
+  sentiment derived from the Neural Network, held no relationship with
+  the results of the election, a correlation score was computed
+  between the difference in average sentiment per state and the
+  results in each state. The correlation score was: $-0.081$, showing no
+  correlation.  
+
+  \subsection{Visualisations, Result Analysis and Insights}
+
+  %\begin{wrapfigure}{r}{0.30\linewidth}
+  %  \includegraphics[trim=0 0 0 0, width=\linewidth]{{winner_states.jpeg}}
+  %  \centering
+  %  \captionsetup{justification=centering}
+  %  %\caption{Diagram of densely layered Neural Network}
+  %  \vspace{-110pt}
+  %  \label{fig:winner_states}
+  %\end{wrapfigure}
+
+   \begin{wrapfigure}{r}{0.40\linewidth}
+    \vspace{-20pt}
+    \begin{center}
+      \includegraphics[width=\linewidth]{{winner_states.jpeg}}
+    \end{center}
+    \captionsetup{justification=centering}
+    \caption{Majority Choice in Each State} 
+    \label{fig:winner_states}
+    \vspace{10pt}
+  \end{wrapfigure}
+
+
+  
+  First, we created \Cref{fig:winner_states} with the help of Plotly library to
+  show the winners of each state. One of the most useful parts of
+  Plotly is that it’s interactive which advantage unfortunately gets
+  lost in an offline document.  
+
+
+  %\begin{wrapfigure}{r}{0.30\linewidth}
+  %  \includegraphics[trim=0 0 0 100, width=\linewidth]{{Trump_polarity2.png}}
+  %  \centering
+  %  \captionsetup{justification=centering}
+    %\caption{Diagram of densely layered Neural Network}
+  %  \vspace{-110pt}
+  %  \label{fig:trump_polarity_2}
+  %\end{wrapfigure}
+  
+  %\begin{wrapfigure}{r}{0.30\linewidth}
+  %  \includegraphics[trim=0 0 0 0, width=\linewidth]{{sentiment_states.jpeg}}
+  %  \centering
+  %  \captionsetup{justification=centering}
+  %  %\caption{Diagram of densely layered Neural Network}
+  %  \vspace{-110pt}
+  %  \label{fig:sentiment_states}
+  %\end{wrapfigure}
+
+  \begin{wrapfigure}{r}{0.79\linewidth}
+    \vspace{-80pt}
+    \begin{center}
+      \includegraphics[trim=20 10 0 0, width=\linewidth]{{sentiment_states.jpeg}}
+    \end{center}
+    \vspace{-20pt}
+    \captionsetup{justification=centering}
+    \caption{Conclusive Data Visualisation after Sentiment and Topic Analysis} 
+    \label{fig:sentiment_states}
+    \vspace{-60pt}
+  \end{wrapfigure}
+  
+  Meanwhile, \Cref{fig:sentiment_states} concludes two of our most
+  important findings of sentiment and topic analysis. On the left bar
+  plot, you can see the polarity of those tweets that were posted
+  about Trump. The added colour represents the winner of the election
+  in that state. Surprisingly, there was one state with negative
+  polarity about Trump where he actually won. Despite the data
+  cleaning the range of the polarity varies on a small scale, roughly
+  between -0.003 and 0.1. Deciding whether the posts were about Trump
+  or Hillary and whether they were positive or negative per state
+  would give us a very complicated table that does not really help us
+  to show to the final conclusion. In order to understand these
+  results we added +/- signs, so the positive numbers mean the average
+  sentiment is more positive about Hillary and vice
+  versa. E.g. Wisconsin provides us with an interesting example
+  because even though Trump won the elections there, the tweets more
+  tweets were negative when he was the topic.  
+  
+  \section{Conclusion}
+  The approach with TextBlob’s polarity resulted in a slight
+  correlation between the tweets and the vote results. However, the
+  correlation of tweets about Hillary / Trump with the actual results
+  was not decisively high enough to make out a clear connection
+  between them. The Sentiment analysis found no correlation between
+  the predicted sentiment and the actual results, while this could be
+  a result of incorrect methodology or flawed training dataset, it
+  could also show that social media posts aren’t a good metric to use
+  to predict the results of an election.It is also worth noting that
+  the amount of tweets analysed is dwarfed by the total amount of
+  tweets posted during the final stretch of the 2016 presidential
+  campaign, and possibly the sample was not representative of the
+  overall opinion of Twitter users.
+  
+
+  \newpage
+  \section{References}
+  \nocite{*}
+  \setlength\bibitemsep{2\itemsep}
+  \printbibliography[heading=none]
+  
+  
 \end{document}
 %%% Local Variables:
 %%% mode: latex

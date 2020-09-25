@@ -1,0 +1,777 @@
+#+TITLE: Exploring Twitter Data
+#+AUTHOR: Antonio Mendes
+#+EMAIL: <17amendes@gmail.com>
+#+DATE: 21 / 09 / 2020
+#+PROPERTY: header-args :exports both :session twt_ :results value
+
+* Introduction
+Applying GaussianNB on clean.csv trainened on mix_tweet_sentiment.csv
+
+Applying LDA topic modelling on clean.csv
+
+* Imports
+*** standard
+#+BEGIN_SRC python
+import numpy  as np
+import pandas as pd
+import geopandas as gpd
+#+END_SRC
+
+#+RESULTS:
+
+*** matplotlib
+#+BEGIN_SRC python
+import matplotlib.pyplot as plt
+plt.style.use("fivethirtyeight")
+import matplotlib.ticker as ticker
+plt.rcParams["font.family"] = "Times New Roman"
+
+from mpl_toolkits.mplot3d import Axes3D
+#+END_SRC
+
+#+RESULTS:
+
+*** import os and getting current directory
+#+BEGIN_SRC python
+import os 
+from pathlib import Path
+cwd = os.path.abspath(os.getcwd())
+cwd
+#+END_SRC
+
+#+RESULTS:
+: /Users/antoniomendes/uva_data_science/semester_01/block_01/fundamentals_of_data_science/assignments/assignment_01/FDSAssignement1
+
+**** fig_dir
+#+BEGIN_SRC python
+fig_dir = Path("/".join(cwd.split("/"))) / "figures"
+fig_dir
+#+END_SRC
+
+#+RESULTS:
+: /Users/antoniomendes/uva_data_science/semester_01/block_01/fundamentals_of_data_science/assignments/assignment_01/figures
+
+**** data_dir
+#+BEGIN_SRC python
+data_dir = Path("/".join(cwd.split("/"))) / "training_datasets"
+data_dir
+#+END_SRC
+
+#+RESULTS:
+: /Users/antoniomendes/uva_data_science/semester_01/block_01/fundamentals_of_data_science/assignments/assignment_01/training_datasets
+
+*** sklearn
+#+BEGIN_SRC python
+from sklearn.naive_bayes import GaussianNB as gnb
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
+#+END_SRC
+
+#+RESULTS:
+
+*** nltk
+#+BEGIN_SRC python 
+import nltk
+
+from nltk.corpus import stopwords
+from nltk.tokenize import TweetTokenizer
+#+END_SRC
+
+#+RESULTS:
+
+*** gensim
+#+BEGIN_SRC python
+import gensim
+
+from gensim.models import CoherenceModel
+from gensim.models import LdaMulticore
+#+END_SRC
+
+#+RESULTS:
+
+*** tools
+#+BEGIN_SRC python
+import string
+import re
+import math
+import pickle
+
+from collections import Counter
+from itertools import combinations
+from tqdm import tqdm
+#+END_SRC
+
+#+RESULTS:
+
+* Getting the Data
+#+BEGIN_SRC python
+mix_sentiment_df = pd.read_csv("data/mix_tweet_sentiment.csv")
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+election_tweets_df = pd.read_csv(open('clean.csv','rU'), encoding='utf-8', engine='c').drop(columns=["Unnamed: 0"])
+#election_tweets_df = pd.read_csv("")
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+election_tweets_df = pd.read_csv("sentiment_with_topics.csv")
+#+END_SRC
+
+#+RESULTS:
+
+* GaussianNB
+*** training the model
+#+BEGIN_SRC python
+mix_sentiment_df.columns.values
+#+END_SRC
+
+#+RESULTS:
+| Unnamed: 0 | text | sentiment | filtered_tweet |
+
+#+BEGIN_SRC python
+mix_all_words = []
+for i in range(len(mix_sentiment_df)):
+  for word in mix_sentiment_df.iloc[i].filtered_tweet:
+    if word not in mix_all_words:
+      mix_all_words.append(word)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+mlb = MultiLabelBinarizer(sparse_output=True)
+
+mix_tweet_occurence_df = pd.DataFrame.sparse.from_spmatrix(mlb.fit_transform(mix_sentiment_df.pop("filtered_tweet")),index=mix_sentiment_df.index,columns=mlb.classes_)
+
+mix_tweet_occurence_df["sentiment"] = mix_sentiment_df["sentiment"]
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+gnb_model = gnb()
+X = mix_tweet_occurence_df[mix_all_words]
+Y = mix_tweet_occurence_df["sentiment"][:,np.newaxis]
+
+gnb_model.fit(X, Y)
+#+END_SRC
+
+#+RESULTS:
+: GaussianNB(priors=None, var_smoothing=1e-09)
+
+#+BEGIN_SRC python
+import pickle
+pickle.dump(gnb_model, open('gnb_twitter_model.sav', 'wb'))
+#+END_SRC
+
+#+RESULTS:
+
+*** predicting sentiments for US election tweets
+#+BEGIN_SRC python
+def preprocess_pipeline(tweet):
+  tknzr = TweetTokenizer(preserve_case=False, reduce_len=False, strip_handles=False)
+  tweet = tweet.lower()
+  tweet = re.sub(r'https\S+|www\S+|https\S+', '', tweet, flags=re.MULTILINE)
+  tweet = re.sub(r'\@\w+|\#\w+', '', tweet)
+  tweet = tweet.translate(str.maketrans('','', string.punctuation))
+  word_tokens = tknzr.tokenize(tweet)
+  filtered_words = [word for word in word_tokens if word not in stopwords.words("english")]
+  filtered_words = re.sub(r'\s+', '', ','.join(filtered_words)).split(',')
+  return filtered_words
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+election_tweets_filtered = []
+all_election_words = []
+for i in tqdm(range(len(election_tweets_df))):
+  curr_twt = election_tweets_df.iloc[i].text
+  filtered_twt = preprocess_pipeline(curr_twt)
+  election_tweets_filtered.append(filtered_twt)
+  for word in filtered_twt:
+    if word not in all_election_words:
+      all_election_words.append(word)
+#+END_SRC
+
+#+BEGIN_SRC python
+election_tweets_df["text_filtered"] = election_tweets_filtered
+election_tweets_df.to_csv("election_tweets_antonio.csv")
+#+END_SRC
+
+#+RESULTS:
+| text | timestamp | user.name | user.screen_name | user.followers_count | state | topic_words | hashtags_mentions | simple_topic |
+
+#+BEGIN_SRC python
+list(mix_tweet_occurence_df.columns.values)[:-1][-1]
+#+END_SRC
+
+#+BEGIN_SRC python
+election_sentiment_df = pd.DataFrame(columns=mix_tweet_occurence_df.columns.values[:-1], index=np.arange(len(election_tweets_df)))
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+for i in range(len(election_tweets_df)):
+  row = np.zeros(len(election_sentiment_df.columns.values))
+  row += np.in1d(list(election_sentiment_df.columns.values), election_tweets_filtered[i])
+  election_sentiment_df.iloc[i] = np.array(row)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+gnb_model = pickle.load(open('gnb_twitter_model.sav', 'rb'))
+election_sentiment = gnb_model.predict(election_sentiment_df)
+#+END_SRC
+
+* Topic Modelling
+** TFIDF
+#+BEGIN_SRC python
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
+#+END_SRC
+
+#+BEGIN_SRC python
+tweets_filtered_string = [" ".join(tweet) for tweet in election_tweets_filtered]
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+stop_words = stopwords.words("english")
+vectorizer = TfidfVectorizer(stop_words = stop_words, min_df = 0.1)
+
+tfidf = vectorizer.fit_transform(tweets_filtered_string)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+nmf = NMF(n_components = 3)
+
+topic_values = nmf.fit_transform(tfidf)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+return_string = []
+
+for topic_num, topic in enumerate(nmf.components_):
+  message = "Topic #{}: ".format(topic_num + 1)
+  message += " ".join([vectorizer.get_feature_names()[i] for i in np.argsort(topic)[-10:]])
+  print(message)
+  return_string.append(str(message))
+
+"\n\n".join(return_string)
+#+END_SRC
+
+#+RESULTS:
+: Topic #1: trump hillaryclinton realdonaldtrump
+: 
+: Topic #2: realdonaldtrump trump hillaryclinton
+: 
+: Topic #3: hillaryclinton realdonaldtrump trump
+
+** LDA Topic Modelling
+*** example plots
+**** three topics
+#+BEGIN_SRC python :results file
+fig = plt.figure(figsize=(30,30))
+ax = fig.add_subplot(111, projection="3d")
+
+s = np.random.dirichlet((7, 3, 15), 10000).transpose()
+
+ax.scatter(
+  s[0,:],
+  s[1,:],
+  s[2,:],
+  s=100,
+  alpha=0.25,
+  label="Document"
+)
+
+fivethirtyeight_colors = [
+  '008fd5', # blue
+  'fc4f30', # red
+  'e5ae38', # yellow
+  '6d904f', # green
+  '8b8b8b', # gray
+  'bbbbbb', # lightgray
+  'cfcfcf', # lightlightgray
+  '810f7c', # purple
+]
+
+corner_points = np.array([
+  [1,0,0],
+  [0,1,0],
+  [0,0,1]
+])
+
+for i in range(3):
+  ax.scatter(
+    corner_points[i,0],
+    corner_points[i,1],
+    corner_points[i,2],
+    s = 1000,
+    linewidth=4,
+    edgecolor="k",
+    zorder=2,
+    alpha=0.7,
+    #color="#fc4f30",
+    label=str("Topic #{}".format(i+1))
+  )
+
+corner_combinations = np.array(list(combinations(corner_points, 2)))
+for i in range(3):
+  x = np.array([
+    corner_combinations[i,0][0],
+    corner_combinations[i,1][0],
+  ])
+  y = np.array([
+    corner_combinations[i,0][1],
+    corner_combinations[i,1][1],
+  ])
+  z = np.array([
+    corner_combinations[i,0][2],
+    corner_combinations[i,1][2],
+  ])
+  #ax.plot(corner_combinations[i,0],corner_combinations[i,1])
+  ax.plot(
+    x,y,z,
+    linewidth=10,
+    zorder=1,
+    color="#8b8b8b"
+  )
+
+ax.tick_params(axis="x", labelsize=40)
+ax.tick_params(axis="y", labelsize=40)
+ax.tick_params(axis="z", labelsize=40, pad=20)
+
+ax.legend(prop={"size":40})
+ax.view_init(azim=45)
+plt.savefig("lda_example_3d.png", bbox_inches="tight")
+"lda_example_3d.png"
+#+END_SRC
+
+#+RESULTS:
+[[file:lda_example_3d.png]]
+
+**** two topics
+#+BEGIN_SRC python :results file
+fig = plt.figure(figsize=(32,30))
+ax  = fig.add_subplot(111)
+
+s = np.random.dirichlet((10, 7), 1000).transpose()
+
+ax.scatter(
+  s[0,:],
+  s[1,:],
+  s=250,
+  alpha=0.25,
+  label="Document"
+)
+
+corner_points = np.array([
+  [1,0],
+  [0,1],
+])
+
+for i in range(2):
+  ax.scatter(
+    corner_points[i,0],
+    corner_points[i,1],
+    s = 1000,
+    linewidth=4,
+    edgecolor="k",
+    zorder=2,
+    alpha=0.7,
+    #color="#fc4f30",
+    label=str("Topic #{}".format(i+1))
+  )
+
+ax.set_ylim(-0.05,1.05)
+ax.set_xlim(-0.05,1.05)
+
+ax.tick_params(axis="x", labelsize=40, pad=40)
+ax.tick_params(axis="y", labelsize=40, pad=40)
+
+ax.legend(prop={"size":40})
+
+plt.savefig("lda_example_2d.png", bbox_inches="tight")
+"lda_example_2d.png"
+#+END_SRC
+
+#+RESULTS:
+[[file:lda_example_2d.png]]
+
+*** getting dictionary and bow_corpus
+#+BEGIN_SRC python
+dictionary = gensim.corpora.Dictionary(election_tweets_filtered)
+
+bow_corpus = [dictionary.doc2bow(doc) for doc in election_tweets_filtered]
+#+END_SRC
+
+#+RESULTS:
+
+*** hyperparameter tuning
+**** getting cohrence values
+#+BEGIN_SRC python
+lda_model = gensim.models.LdaMulticore(bow_corpus, num_topics=2, id2word=dictionary, passes=2, workers=2)
+#+END_SRC
+
+#+BEGIN_SRC python
+def compute_coherence(corpus, dictionary, k, a, b):
+  lda_model = LdaMulticore(
+    bow_corpus, 
+    num_topics=k, 
+    id2word=dictionary, 
+    passes=2, 
+    workers=2, 
+    alpha=a, 
+    eta=b
+  )
+  coherence_lda_model = CoherenceModel(
+    model=lda_model, 
+    texts=election_tweets_filtered, 
+    dictionary=dictionary, 
+    coherence="c_v"
+  )
+  return coherence_lda_model.get_coherence()
+#+END_SRC
+
+#+RESULTS:
+: Empty DataFrame
+: Columns: [A, B]
+: Index: []
+
+#+BEGIN_SRC python
+alpha = list(np.arange(0.01, 1, 0.3))
+alpha.append('symmetric')
+alpha.append('asymmetric')
+
+beta = list(np.arange(0.01, 1, 0.3))
+beta.append('symmetric')
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+hyperparameter_df = pd.DataFrame(columns=["num_topics", "alpha", "beta", "coherence"])
+
+for k in tqdm(range(2,5)):
+  for a in tqdm(alpha):
+    for b in tqdm(beta):
+      cv = compute_coherence(bow_corpus, dictionary, k, a, b)
+      hyperparameter_df = hyperparameter_df.append({
+        "num_topics":k,
+        "alpha"     :a,
+        "beta"      :b,
+        "coherence" :cv 
+      }, ignore_index=True)
+      hyperparameter_df.to_csv("lda_model_hyperparameters.csv")
+
+hyperparameter_df.to_csv("lda_model_hyperparameters.csv")
+#+END_SRC
+
+**** visualising hyperparameter results
+#+BEGIN_SRC python :results file
+fig =  plt.figure(figsize=(40,30))
+ax  = fig.add_subplot(111)
+
+mean_hyperparameter_df   = hyperparameter_df[["num_topics","coherence"]].groupby("num_topics").mean()
+median_hyperparameter_df = hyperparameter_df[["num_topics","coherence"]].groupby("num_topics").median()
+
+x  = mean_hyperparameter_df.index.values
+y1 = mean_hyperparameter_df["coherence"]
+
+ax.bar(x, y1, alpha=0.5, label="Mean")
+
+y2 = median_hyperparameter_df["coherence"]
+ax.bar(x, y2, alpha=0.5, label="Median")
+
+ax.set_ylim(0, 1.1)
+ax.set_xlabel("Number of Topics", labelpad=40, fontsize=60)
+ax.set_ylabel("Coherence", labelpad=40, fontsize=60)
+
+ax.tick_params(axis="x", labelsize=40, pad=20)
+ax.tick_params(axis="y", labelsize=40, pad=20)
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.yaxis.set_major_locator(ticker.MultipleLocator(0.2))
+
+ax.legend(prop={"size":48})
+
+plt.savefig("bar_num_topics_coherence.png", bbox_inches="tight")
+"bar_num_topics_coherence.png"
+#+END_SRC
+
+#+RESULTS:
+[[file:bar_num_topics_coherence.png]]
+
+
+**** max coherence
+#+BEGIN_SRC python
+hyperparameter_df[hyperparameter_df.num_topics == 2][[
+  "alpha",
+  "beta",
+  "coherence"
+]].sort_values(by="coherence", ascending=False).iloc[0]
+#+END_SRC
+
+#+RESULTS:
+: alpha             0.01
+: beta         symmetric
+: coherence     0.498121
+: Name: 4, dtype: object
+
+#+BEGIN_SRC python
+hyperparameter_df[hyperparameter_df.num_topics == 3][[
+  "alpha",
+  "beta",
+  "coherence"
+]].sort_values(by="coherence", ascending=False).iloc[0]
+#+END_SRC
+
+#+RESULTS:
+: alpha            0.01
+: beta             0.91
+: coherence    0.496927
+: Name: 33, dtype: object
+
+#+BEGIN_SRC python
+hyperparameter_df[hyperparameter_df.num_topics == 4][[
+  "alpha",
+  "beta",
+  "coherence"
+]].sort_values(by="coherence", ascending=False).iloc[0]
+#+END_SRC
+
+#+RESULTS:
+: alpha             0.01
+: beta         symmetric
+: coherence     0.473121
+: Name: 64, dtype: object
+
+*** evaluating tuned model
+**** two topics
+#+BEGIN_SRC python
+lda_model_tuned = LdaMulticore(
+  bow_corpus, 
+  num_topics=2, 
+  id2word=dictionary, 
+  passes=2, 
+  workers=2, 
+  alpha=0.01, 
+  eta="symmetric"
+)
+
+pickle.dump(lda_model_tuned, open('lda_twitter_model_tuned.sav', 'wb'))
+#+END_SRC
+
+#+BEGIN_SRC python
+return_list = []
+
+for idx, topic in lda_model_tuned.print_topics(-1):
+    print('Topic: {} \nWords: {}'.format(idx, topic))
+    return_list.append(str('Topic: {} \nWords: {}'.format(idx, topic)))
+
+"\n".join(return_list)
+#+END_SRC
+
+#+RESULTS:
+: Topic: 0 
+: Words: 0.022*"trump" + 0.017*"2016" + 0.016*"hillaryclinton" + 0.016*"realdonaldtrump" + 0.015*"0" + 0.011*"today" + 0.011*"trumppence" + 0.010*"16" + 0.010*"maga" + 0.009*"f"
+: Topic: 1 
+: Words: 0.048*"realdonaldtrump" + 0.037*"hillaryclinton" + 0.019*"trump" + 0.011*"amp" + 0.010*"hillary" + 0.006*"like" + 0.006*"u" + 0.005*"foxnews" + 0.004*"people" + 0.004*"get"
+
+#+BEGIN_SRC python
+tweet_topic_0_prob = [lda_model_tuned.get_document_topics(curr_bow)[0][1] for curr_bow in bow_corpus] 
+election_tweets_df["probability_of_topic_0"] = tweet_topic_0_prob
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python :results file
+x = np.arange(len(tweet_topic_0_prob))
+y = election_tweets_df.sort_values(by="probability_of_topic_0", ascending=True)["probability_of_topic_0"]
+
+fig = plt.figure(figsize=(42,30))
+ax = fig.add_subplot(111)
+
+ax.plot(
+  x,y,
+  linewidth=10
+)
+
+ax.tick_params(axis="x", pad=20, labelsize=48)
+ax.tick_params(axis="y", pad=20, labelsize=48)
+ax.set_ylabel("Probability of Tweet Belonging in Topic 0", labelpad=40, fontsize=60)
+#ax.set_xticks([])
+
+plt.savefig("topic_0.png", bbox_inches="tight")
+
+"topic_0.png"
+#+END_SRC
+
+#+RESULTS:
+[[file:topic_0.png]]
+
+#+BEGIN_SRC python
+count_of_topic_0 = np.sum(election_tweets_df["probability_of_topic_0"] >= 0.50)
+count_of_topic_1 = len(election_tweets_df) - count_of_topic_0
+
+topic_counts = [
+  count_of_topic_0,
+  count_of_topic_1
+]
+
+return_list = []
+for i, count in enumerate(topic_counts):
+  return_list.append(str('# of Tweets in Topic {}: {}'.format(i, count)))
+
+"\n\n".join(return_list)
+#+END_SRC
+
+#+RESULTS:
+: # of Tweets in Topic 0: 394917
+: 
+: # of Tweets in Topic 1: 117857
+
+#+BEGIN_SRC python
+topic_zero_df = election_tweets_df[election_tweets_df["probability_of_topic_0"] >= 0.50]
+
+return_list = []
+
+indices_used = []
+
+for i in range(20):
+  index = np.random.randint(low = 0, high = len(topic_one_df))
+  while(index in indices_used):
+    index = np.random.randint(low = 0, high = len(topic_one_df))
+  indices_used.append(index)
+  return_list.append("Words in Tweet #{}: {}".format(str(index).zfill(2), topic_zero_df.iloc[index].text))
+
+"\n\n".join(return_list)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Words in Tweet #44250: what do you think of trump plan to combat terrorism isis poll
+
+Words in Tweet #114226: such shit realdonaldtrump would have no campaign w o the constant attention he gets from the elite media 
+
+Words in Tweet #84136:  mitchellreports realdonaldtrump kellyannepolls but does he regret making fun of sergenyt uniteblue voteoutgop 
+
+Words in Tweet #7626:  realdonaldtrump rally in erie pa pittsburghpg pgvisuals 2016presidentialelection donaldtrump 2016election 
+
+Words in Tweet #33233:  realdonaldtrump you obviously have no idea how things work dummy 
+
+Words in Tweet #87015:  charmckenney sme4201968 realdonaldtrump women4trump u forgot beautiful
+
+Words in Tweet #99920:  seanhannity newtgingrich realdonaldtrump he s cooke sean it s over trump is a loser 
+
+Words in Tweet #102373:  trump in 2016 temp crab orchard ky 68 9 f wind 0 0mph pressure 29 97hpa falling slowly rain today 0 00in forecast unsettled precip
+
+Words in Tweet #83580:  lawenforcement chpfortrump sheriffsfortrump policenews ex cop trump supporter who wants to shoot black kids 
+
+Words in Tweet #83839: hey realdonaldtrump wtf is with your thank you after each time ur racist anti semitic white trash crowds yell lock her up imwithher
+
+Words in Tweet #35878:  realdonaldtrump of course you are going to lose loser whinylittlebitch you can blame anyone but you are a loser haha
+
+Words in Tweet #38228:  realdonaldtrump better pray for a hackers email release to save your candidacy your inability to stay on message will be what cost race
+
+Words in Tweet #19388:  hillaryclinton jobs flipping burgers idiot much 
+
+Words in Tweet #34744: she is terrified of people trump will rip her a new one at the debates 
+
+Words in Tweet #30524: you picked him now you are staring straight into the face of the base of your party not so pretty is it uglygop nevertrump
+
+Words in Tweet #4077:  foxandfriends realdonaldtrump a great example for your kids promoted by foxnews 
+
+Words in Tweet #53081: this is all blood on bho and hrc hands look long and hard before you vote this will be here soon enough 
+
+Words in Tweet #32944:  kebazer realdonaldtrump if that s what we should compare to bush didn t acknowledge anything til after the nov 2008 elections 
+
+Words in Tweet #29191:  cnn why do u put on these brain dead individuals the world is watching america usually keeps these morons off tv 
+
+Words in Tweet #16441:  hillaryclinton all of the above 
+#+end_example
+
+#+BEGIN_SRC python
+topic_one_df = election_tweets_df[election_tweets_df["probability_of_topic_0"] < 0.50]
+
+return_list = []
+indices_used = []
+
+for i in range(20):
+  index = np.random.randint(low = 0, high = len(topic_one_df))
+  while(index in indices_used):
+    index = np.random.randint(low = 0, high = len(topic_one_df))
+  indices_used.append(index)
+  return_list.append("Words in Tweet #{}: {}".format(str(index).zfill(2), topic_one_df.iloc[index].text))
+
+"\n\n".join(return_list)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Words in Tweet #100027:  realdonaldtrump andersoncooper donlemon come on cheating lying hillary getting the answers during the townhall 
+
+Words in Tweet #105854: thx to the hillarists i know now i m not a progressive i m a flaming misogynist bolshevik treehugger demexit neverhillary jillnothill
+
+Words in Tweet #16154:  realdonaldtrump hillary lied to congress period does anyone believe she will go to jail martha stewart went to prison for far less wtf
+
+Words in Tweet #30187: wake up america hillary clinton owes us this via the foxnews android app neverhillary
+
+Words in Tweet #61397: if hillary doesn t press the red button she s weak and if she does she s hysterical
+
+Words in Tweet #115682:  jorgenseptember yewkalaylee susancurry874 if hillaryclinton loses he will go nuts so lets all get together and vote 3rd party
+
+Words in Tweet #106054:  foxnews realdonaldtrump rigged sys o caught spending 29 m in taxpayer funds 2 help hillary in the nov election 
+
+Words in Tweet #56669:  lightheart1 nanaguerrax7 hillaryclinton fuck yeah 
+
+Words in Tweet #98943:  realdonaldtrump i would love to speak for you my brother was turned away at the va and the next week committed suicide 
+
+Words in Tweet #109977:  daggy1 the next great opening line when realdonaldtrump does a rally i really feel deplorable today kellyannepolls danscavino
+
+Words in Tweet #77246:  realdonaldtrump foxnews crooked hillary dogging the media now 273 days disgraceful she s hiding medical amp drug problems absolutely 
+
+Words in Tweet #89193:  realdonaldtrump version of labor day 
+
+Words in Tweet #19134: the demagogue axed one of his own kind pm can t take the heat amp takes advice from roger ailes life is complete 
+
+Words in Tweet #94304:  cnnpolitics mj_lee danmericacnn realdonaldtrump and univisionnews buzzfeed politico dailybeast dmregister this story is ridiculous 
+
+Words in Tweet #85468:  realdonaldtrump our future president can u come 2 cruisin on the coast its over 4 hundred thousand people come
+
+Words in Tweet #83397:  realdonaldtrump you have shown concern for the african americans in this country excellent job 
+
+Words in Tweet #104484: muslims and human rights violations realdonaldtrump hillaryclinton mike_pence senatorsessions americafirst 
+
+Words in Tweet #84594: but there she is on a cell phone can someone hack her 19 phones that would open up your eyes she isnt techy lier 
+
+Words in Tweet #58603:  realdonaldtrump nevertrump any of your klan buddies joining you will you release your tax returns while you are in iowa 
+
+Words in Tweet #74811:  hillaryclinton booking tv ads in columbus through nov 7 via dispatchalerts
+#+end_example
+
+
+#+BEGIN_SRC python
+sentiment_df = pd.read_csv("sentiment.csv")
+
+sentiment_df["probability_of_topic_0"] = election_tweets_df["probability_of_topic_0"]
+sentiment_df.to_csv("sentiment_with_topics.csv")
+#+END_SRC
+
+#+RESULTS:
+: 512774

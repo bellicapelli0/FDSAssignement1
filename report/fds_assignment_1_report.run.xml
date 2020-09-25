@@ -83,7 +83,7 @@
       <file>fds_assignment_1_report.bcf</file>
     </requires>
     <requires type="editable">
-      <file>cap_bibliography.bib</file>
+      <file>twitter_bibliography.bib</file>
     </requires>
   </external>
 </requests>

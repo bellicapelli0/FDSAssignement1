@@ -1,7 +1,13 @@
-\BOOKMARK [1][-]{section.1}{Data Preparation}{}% 1
-\BOOKMARK [1][-]{section.2}{Data Splitting}{}% 2
-\BOOKMARK [1][-]{section.3}{Sentiment Analysis}{}% 3
-\BOOKMARK [1][-]{section.4}{Topic Modelling}{}% 4
-\BOOKMARK [1][-]{section.5}{Results Understanding}{}% 5
-\BOOKMARK [1][-]{section.6}{Limitations}{}% 6
-\BOOKMARK [1][-]{section.7}{Context}{}% 7
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Data Cleaning}{}% 2
+\BOOKMARK [1][-]{section.3}{Polarity}{}% 3
+\BOOKMARK [1][-]{section.4}{Sentiment Analysis}{}% 4
+\BOOKMARK [2][-]{subsection.4.1}{Multinomial Na\357ve Bayes}{section.4}% 5
+\BOOKMARK [2][-]{subsection.4.2}{Neural Networks}{section.4}% 6
+\BOOKMARK [1][-]{section.5}{Topic Modelling}{}% 7
+\BOOKMARK [1][-]{section.6}{Results}{}% 8
+\BOOKMARK [2][-]{subsection.6.1}{Polarity Results}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.2}{Sentiment Results}{section.6}% 10
+\BOOKMARK [2][-]{subsection.6.3}{Visualisations, Result Analysis and Insights}{section.6}% 11
+\BOOKMARK [1][-]{section.7}{Conclusion}{}% 12
+\BOOKMARK [1][-]{section.8}{References}{}% 13

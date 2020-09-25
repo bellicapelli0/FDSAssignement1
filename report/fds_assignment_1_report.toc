@@ -6,10 +6,16 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Sentiment Analysis}{1}{section.3}% 
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Topic Modelling}{1}{section.4}% 
+\contentsline {subsection}{\numberline {3.1}Multinomial Na\IeC {\"\i }ve Bayes}{1}{subsection.3.1}% 
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Results Understanding}{1}{section.5}% 
+\contentsline {subsection}{\numberline {3.2}Neural Networks}{1}{subsection.3.2}% 
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {6}Limitations}{1}{section.6}% 
+\contentsline {section}{\numberline {4}Topic Modelling}{3}{section.4}% 
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {7}Context}{1}{section.7}% 
+\contentsline {section}{\numberline {5}Polarity}{4}{section.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {6}Results Understanding}{5}{section.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {7}Limitations}{5}{section.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {8}Context}{5}{section.8}% 
