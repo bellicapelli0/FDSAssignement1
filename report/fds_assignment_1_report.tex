@@ -126,6 +126,95 @@
   \section{Data Splitting}
   \section{Sentiment Analysis}
   \section{Topic Modelling}
+  \section{Polarity}
+  The already cleaned data provides us with many possibilities in
+  terms of data analysis. One of the main focus of the analysis is on
+  sentiment analysis of the Twitter texts. Python has a wide variety
+  of Natural Language Processing (NLP) tools that are helpful when
+  looking for the sentiment value of a particular text, and in our
+  case, tweets. Some of the packages, such as NLTK and TextBlob can
+  deal with strings mathematically. To find out the polarity of our
+  tweets, we have used the TextBlob tool which classifies the text
+  into negative, neutral and positive tweets between the values $-1$ and
+  $1$, where negative numbers tend to refer to tweets with negative
+  wording and positives refer to tweets with positive words. TextBlob
+  also creates a second output called subjectivity, with values
+  between $0$ and $1$  where $0$ is an objective tweet and $1$ is a subjective
+  one. In this assignment, however, we are only focusing on polarity
+  as this can be more correlated to actual vote results.%\\
+
+  The first step in our analysis is to create a new column called
+  “polarity” in the already cleaned data with the TextBlob package
+  based on the tweet texts. The new column will contain the values of
+  the polarities of the particular tweets. Next, we are grouping the
+  data by states and taking the average value of the polarities per
+  state. As a result ,we get the sorted polarity values for the 50
+  states. We can observe that the average polarity values of the
+  tweets in general are between $-0.2$ and $0.2$.
+
+  In order to get a better insight on how tweets can be related to
+  votes results, we have split up our dataset to tweets which are
+  mainly about Trump and to tweets about Hillary. After that, we
+  follow the same procedure as before, and group the average polarity
+  scores of the two candidates per state. Next, we load an external
+  dataset from the $2016$ U.S elections
+  (“usa-2016-presidential-election-by-county.csv”) to compare the
+  results with the polarity of the tweets. The results state that
+  Trump got the most positive comments from states like Montana,
+  Wisconsin and Kentucky. These are states where Trump also got more
+  votes than Hillary Clinton.  
+  
+  \begin{table}[H]
+    \centering
+    \begin{tabular}{||p{2cm} p{3cm} p{3cm} ||}
+      \hline
+      state & polarity & name \\ \hline
+      NE & 0.0819 & Nebraska \\
+      MT & 0.0825 & Montana \\
+      WI & 0.1080 & Wisconsin \\
+      KT & 0.1120 & Kentucky \\
+      \hline
+    \end{tabular}
+    \caption{\label{tab:} }
+  \end{table}
+
+  As for Hillary, we can conclude that she received negative tweets in
+  states which are Republican bastions such as Idaho, North Dakota and
+  Wyoming. Correspondingly, she received positive tweets from states
+  such as Washington D.C and New Hampshire which indeed voted for
+  Hillary. We have calculated a correlation score between polarity and
+  the winner of a state ($1$ : Trump, $0$: Hillary). The resulting
+  correlation for tweets containing Trump and winner:Trump  is
+  $0.257$. The result states that the more positive the tweet about
+  Trump is, the more likely that state has voted for Trump. Vice
+  verse, if the tweets are more positive about Hillary, it is less
+  likely that people in that state voted for Trump. (Correlation:
+  $-0.189$). However, these correlations are not high enough (smaller
+  than $0.3$) to say that the polarity of a tweet has a decisive impact
+  on the vote results.
+
+  \begin{table}[H]
+    \centering
+    \begin{tabular}{||p{2cm} p{3cm} p{3cm} ||}
+      \hline
+      state & polarity & name \\ \hline
+      ID & -0.0236 & Idaho \\
+      ND & -0.0158 & North Dakota \\
+      WY & -0.0148 & Wyoming \\
+      UT & -0.0133 & Utah \\
+      DC & 0.0786 & District of Columbia \\
+      NH & 0.0822 & New Hampshire\\
+      \hline
+    \end{tabular}
+    \caption{\label{tab:} }
+  \end{table}
+
+  To get a better overview, we have included a few maps which reflect
+  whether the tweets in a state were positive or negative about
+  Hillary or Trump. Furthermore, we have also added a map about the
+  votes results in 2016 based on the external dataset. For the
+  visualisation, we have used plotly and matplotlib.  
+  
   \section{Results Understanding}
   \section{Limitations}
   \section{Context}
